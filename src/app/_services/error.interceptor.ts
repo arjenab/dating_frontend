@@ -12,22 +12,22 @@ export class ErrorInterceptor implements HttpInterceptor {
         return next.handle(req).pipe(
             catchError(error => {
                 if (error.status === 401) {
-                    console.log('app error');
                     return throwError(error.statusText);
                 }
                 if (error instanceof HttpErrorResponse) {
                     const applicationError = error.headers.get('Application-Error');
                     if (applicationError) {
-                        console.log('app error');
                         return throwError(applicationError);
                     }
                 }
                 const serverError = error.error;
                 let modalStateErrors = '';
+                console.log(serverError);
                 if (serverError.errors && typeof serverError.errors === 'object') {
+                    console.log('trigger');
                     for (const key in serverError.errors) {
                         if (serverError.errors[key]) {
-                            console.log('serverError.errors[key]');
+                            console.log('zou dit moeten doen');
                             modalStateErrors += serverError.errors[key] + '/n';
                         }
                     }
