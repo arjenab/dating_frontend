@@ -5,6 +5,7 @@ import { Observable } from 'rxjs';
 import { User } from '../_models/User';
 import { PaginatedResults } from '../_models/Pagination';
 import { map } from 'rxjs/operators';
+import { Message } from '../_models/message';
 
 
 @Injectable({
@@ -70,5 +71,29 @@ deletePhoto(userId: number, id: number) {
 
 sendLike(id: number, recipientId: number) {
   return this.http.post(this.baseUrl + 'users/' + id + '/like/' + recipientId , {});
+}
+
+getMessages(id: number, page?, itemsPerPage?, messageContainer?): Observable<PaginatedResults<Message[]>> {
+  const paginatedResults: PaginatedResults<Message[]> = new PaginatedResults<Message[]>();
+
+  let params = new HttpParams();
+
+  params = params.append('MessageContainer', messageContainer);
+
+  if (page != null && itemsPerPage != null) {
+    params = params.append('pageNumber', page);
+    params = params.append('pageSize', itemsPerPage);
+  }
+
+  return this.http.get<Message[]>(this.baseUrl + 'users/' + id + '/messages', {observe: 'response', params})
+    .pipe(
+      map(response => {
+        paginatedResults.results = response.body;
+        if (response.headers.get('Pagination') != null) {
+          paginatedResults.pagination = JSON.parse(response.headers.get('Pagination'));
+        }
+        return paginatedResults;
+      })
+    );
 }
 }
